@@ -1,0 +1,87 @@
+import boto3
+import boto3.session
+
+class AWSSession:
+  def __init__(self, profile_name):
+    self.profile_name=profile_name
+
+  def create_session(self):
+    session = boto3.Session(profile_name=self.profile_name)
+    return session
+
+class ListResources:
+  def __init__(self, profile, region, resource):
+    self.profile = profile
+    self.region = region
+    self.resource = resource
+    self.session = boto3.Session(profile_name=self.profile)
+
+  def AWSResourceList(self):
+    server_list=self.session.resource(self.resource, region_name=self.region)
+    for server in server_list.instances.all():
+      print(server.id) 
+
+class Instance(object):
+    def __init__(self, id, account):
+        self.id = id
+        self.account = account
+
+profile_list = [ '133', '202', '230', '272', '353', '439',] 
+dict([('sape', 4139), ('guido', 4127), ('jack', 4098)])
+
+
+account_name = dict([ ('272', 'Imaging-Prod AWS Account'), ('202', 'Dev AWS Account'), ('230', 'QA AWS Account'),('439', 'Prod AWS Account'), ('133', 'Ops AWS Account'),('353', 'Original AWS Account')])
+regions = ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2']
+for reg in regions:
+  count_running = 0
+  count_stopped = 0
+  count_running=0
+  count_stopped=0
+  print (f"Region: {reg}")
+  for profile_name in profile_list:
+  
+  #  x = AWSSession('133')
+  #  y = x.create_session()
+  #  z = ListResources(y,'us-east-1','ec2')
+  #  z.AWSResourceList()
+  #  asdf = ListResources(profile_name, reg, 'ec2')
+  #  asdf.AWSResourceList()
+    session = boto3.Session(profile_name=profile_name)
+  
+    server_list=session.resource('ec2', region_name=reg)
+    s3_bucket_list = session.resource('s3', region_name=reg)
+  
+    running_instances = []
+    stopped_instances = []
+    
+    for server in server_list.instances.all():
+      
+      tags = server.tags
+  
+      server_state =  server.state.get('Name')
+  
+      if server_state == 'running':
+        # running_instances.update({server.id:profile_name})
+        running_instances.append(server.id)
+      elif server_state == 'stopped':
+        # stopped_instances.update({server.id:profile_name})
+        stopped_instances.append(server.id)
+      
+      # print(f"{server} is {server.private_ip_address}")
+  
+  #    if tags is not None:
+  #      for tag in tags:
+  #        print (f"this is the tag: {tag}")
+  #    print (f"-----")
+  
+    print (f"Account name: {account_name.get(profile_name)} (last 3-digits of account # {profile_name }) - running instance count: {len(running_instances)} and stopped instance count: {len(stopped_instances)}")
+    count_running += len(running_instances)
+    count_stopped += len(stopped_instances)
+  
+  #  for i  in s3_bucket_list.buckets.all():
+  #    print(i.name)
+  
+  #for key, value in running_instances.items():
+  #  print(f"server {key} in account {value}")
+  print (f"TOTAL EC2 running: {count_running}")
+  print (f"TOTAL EC2 stopped: {count_stopped}")
