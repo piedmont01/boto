@@ -85,3 +85,4 @@ for reg in regions:
   #  print(f"server {key} in account {value}")
   print (f"TOTAL EC2 running: {count_running}")
   print (f"TOTAL EC2 stopped: {count_stopped}")
+  print (f"This has been added")
