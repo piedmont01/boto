@@ -53,6 +53,8 @@ for reg in regions:
   
     running_instances = []
     stopped_instances = []
+    windows_servers = []
+    linux_servers = []
     
     for server in server_list.instances.all():
       
@@ -63,16 +65,20 @@ for reg in regions:
       if server_state == 'running':
         # running_instances.update({server.id:profile_name})
         running_instances.append(server.id)
+        if server.platform == "windows":
+          windows_servers.append(server.id)
+        else:
+          linux_servers.append(server.id)
       elif server_state == 'stopped':
         # stopped_instances.update({server.id:profile_name})
         stopped_instances.append(server.id)
       
       # print(f"{server} is {server.private_ip_address}")
   
-  #    if tags is not None:
-  #      for tag in tags:
-  #        print (f"this is the tag: {tag}")
-  #    print (f"-----")
+      if tags is not None:
+        for tag in tags:
+          print (f"this is the tag: {tag}")
+      print (f"-----")
   
     print (f"Account name: {account_name.get(profile_name)} (last 3-digits of account # {profile_name }) - running instance count: {len(running_instances)} and stopped instance count: {len(stopped_instances)}")
     count_running += len(running_instances)

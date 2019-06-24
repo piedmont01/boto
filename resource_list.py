@@ -39,7 +39,10 @@ class ListResources:
       if len(response['Clusters']) > 0:
         for cluster in response['Clusters']:
           print(f"Redshift Cluster: {cluster['ClusterIdentifier']}")
-        
+
+    if self.resource == 'route53':
+      client = self.session.client('route53', region_name=self.region)
+
 
 
 
