@@ -37,7 +37,9 @@ print(a['loadBalancerName'])
 print (f"------------------------------------------------------------")
 print (f"\n")
 x=event['detail']['responseElements']['loadBalancers']
+print(x)
 print(f"this is the {type(x)}")
 for elb in x:
     for k, v in elb.items():
         print(k,v)
+
