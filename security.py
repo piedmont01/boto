@@ -43,5 +43,11 @@ print(ec2_sec_groups)
 
 get_rid_of = sec_group_id_list.difference(ec2_sec_groups)
 
+ec2 = boto3.client('ec2')
 print("-----")
 print(get_rid_of)
+for this in get_rid_of:
+  try: 
+    response = ec2.delete_security_group( GroupId=this, DryRun=False )
+  except:
+    print(f"Security group in use: {this}") 

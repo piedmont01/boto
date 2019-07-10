@@ -1,0 +1,90 @@
+sg-7ea26f1b sg-7fa26f1a 445 138
+            (outbound) sg-7ea26f1b
+sg-e51d7980 PROD-NXTRNET-APP 172.16.0.0/12 (22) sg-4dcfab28 (8080)
+            (outbound) sg-794b031c sg-c21d79a7 sg-5b985f3e
+sg-edf82f86 default 0.0.0.0/0 (0-65535)
+sg-b61d79d3 PROD-NXTRNET-WEB sg-6b1cd80e (80) 172.16.0.0/14 (22)
+sg-38ca325f plawrmq 172.16.0.0/12 (5672) 172.16.0.0/12 (ALL)
+sg-7fa26f1a This security group has no rule
+sg-5948e13d 0.0.0.0/0 (80) sg-5948e13d (ALL) sg-5f48e13b (ALL)
+sg-7abe731f FAMCSEC-BastionSSH 0.0.0.0/0 (22)
+sg-56e53033 SLB-jenkins 0.0.0.0/0 (80) 172.16.0.0/12 (4444) 172.16.0.0/12 (3306)
+sg-4dcfab28 SLB-NXTRNET-APP sg-b61d79d3 (8080 and 8443)
+sg-794b031c PROD-DNS 172.16.0.0/12 (22) 172.16.0.0/0 (53)
+sg-5501d03a
+sg-c21d79a7
+sg-6b1cd80e SLB-Webservers 0.0.0.0/0 (80 and 443)
+sg-08599b6d
+sg-5b985f3e
+sg-5f48e13b
+sg-7da26f18
+
+Cloudwatch
+
+Streams for Prod-netlogs 
+
+
+
+ 440  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table 
+  441  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table | awk '{print $2}' | grep -v ^$ 
+  442  do aws logs delete-log-group --log-group-name /aws/lambda/EC2_dynamodv_add   /aws/lambda/EC2_dynamodv_delete    
+  443  aws logs delete-log-group --log-group-name /aws/lambda/EC2_dynamodv_add   /aws/lambda/EC2_dynamodv_delete    
+  444  aws logs delete-log-group --log-group-name /aws/lambda/EC2_dynamodv_add 
+  445  aws logs delete-log-group --log-group-name   /aws/lambda/EC2_dynamodv_delete    
+  446  aws logs delete-log-group --log-group-name   /aws/lambda/FAMCImageToS3      
+  447  aws logs delete-log-group --log-group-name   /aws/lambda/myscan  
+  448  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table 
+  449  |  /aws/lambda/test_lambda                    |
+  450  aws logs delete-log-group --log-group-name     /aws/lambda/kofaxtorazor   
+  451  aws logs delete-log-group --log-group-name    /aws/lambda/convertToPng   
+  452  aws logs delete-log-group --log-group-name   /aws/lambda/instancetags    
+  453  aws logs delete-log-group --log-group-name /aws/lambda/flowlog-test 
+  454  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table | awk '{print $2}' | grep -v ^$ 
+  455  aws logs delete-log-group --log-group-name  /aws/lambda/vpc_858737304353        
+  456  aws logs delete-log-group --log-group-name  /aws/lambda/tgardner-test    
+  457  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table | awk '{print $2}' | grep -v ^$ 
+  458  aws logs delete-log-group --log-group-name /aws/lambda/S3ImageCopyPerformanceProfile
+  459  aws logs delete-log-group --log-group-name /aws/lambda/edi_restful_appraisal_check
+  460  aws logs delete-log-group --log-group-name /aws/lambda/flowlogs
+  461  aws logs delete-log-group --log-group-name /aws/lambda/test_lambda
+  462  aws logs delete-log-group --log-group-name /aws/lambda/FAMCImageToS3-Prod
+  463  aws logs delete-log-group --log-group-name /aws/lambda/FAMCImageToS3-QA
+  464  aws logs delete-log-group --log-group-name /aws/lambda/FAMCImageToS3Java
+  465  aws logs delete-log-group --log-group-name /aws/lambda/S3EventProcessor
+  466  aws logs delete-log-group --log-group-name /aws/lambda/test
+  467  aws logs describe-log-groups --query 'logGroups[*].logGroupName' --output table 
+
+/aws/lambda/DocUpdate-Prod
+/aws/lambda/FAMCImageToS3-Prod
+/aws/lambda/S3ImageCopyPerformanceProfile-Prod
+/aws/lambda/activejobserror-imgredshift-sync
+/aws/lambda/docs-to-imgredshift
+/aws/lambda/lambdaJobProfiler-Prod
+/aws/lambda/myscan-lambda
+/aws/lambda/pages-to-imgredshift
+/aws/lambda/queueStuckJobs-Prod-Alpha
+/aws/lambda/redshiftActivityLog
+/aws/lambda/redshiftActivityLog-Prod
+/aws/lambda/s3BucketVerify-Prod-Alpha
+/aws/lambda/s3DownloadVerify-Prod-Alpha
+/aws/lambda/s3ImageQueuer-Prod-Alpha
+
+terraform.json:  "key_id_main":"AKIAJVLIV3N2V2MDWYUQ", orc-be
+terraform.json:  "key_id_qa": "AKIAIC45ZM5KOUJXKXEA",
+terraform.json:  "key_id_dataservicesdev": "AKIAIVT7X4IBUOBBNELQ",
+terraform.json:  "key_id_dataservicesprod": "AKIAI3XODQP42YRZYVNQ",
+terraform.json:  "key_id_dataservicesqa": "AKIAJHTSMM5MSDMEK72Q",
+terraform.json:  "key_id_imagingdev": "AKIAIWCY2BZL57FIQ5ZA",
+terraform.json:  "key_id_imagingprod":  "AKIAJGZIB2533RIJSE7Q",
+terraform.json:  "key_id_imagingqa": "AKIAIC45ZM5KOUJXKXEA",
+terraform.json:  "key_id_javastacksdev": "AKIAISOS6GMKGMBAF5OQ",
+terraform.json:  "key_id_mailservicesprod": "AKIAJDOKZBTLIHE7ITHQ",
+terraform.json:  "key_id_mobiledev": "AKIAITAA5VQEGMKS63WA",
+terraform.json:  "key_id_opsdev": "AKIAJIMAWPO5FHABTNJA",
+terraform.json:  "key_id_javastacksqa": "AKIAIM2XMEPEXFEGJVJA",
+terraform.json:  "key_id_devtoolsprod": "AKIAJJQRET3ISBRE74NA",
+terraform.json:  "key_id_internalappsprod": "AKIAJMGBWTEOMTP5PUYQ",
+terraform.json:  "key_id_javastacksprod": "AKIAIY2PERDTHV2LPWDA",
+terraform.json:  "key_id_mobiledevprod": "AKIAJA6TKHJ4LUW4WY5A",
+terraform.json:  "key_id_mobiledevqa": "AKIAIBMR7YXPM6LDEZIQ",
+terraform.json:  "key_id_internalappsqa": "AKIAJS6PEHJTWUEZ4UXA",
