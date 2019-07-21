@@ -88,3 +88,8 @@ terraform.json:  "key_id_javastacksprod": "AKIAIY2PERDTHV2LPWDA",
 terraform.json:  "key_id_mobiledevprod": "AKIAJA6TKHJ4LUW4WY5A",
 terraform.json:  "key_id_mobiledevqa": "AKIAIBMR7YXPM6LDEZIQ",
 terraform.json:  "key_id_internalappsqa": "AKIAJS6PEHJTWUEZ4UXA",
+
+
+dbauer [9:30 AM]
+Well the Gitlab backup process runs as a service in docker and docker secrets are always files.  I'll take a look at the service and see what we can do.  What about our other backup services using AWS access keys?  We have backups for UCP, DTR and Swarm configs that run nightly using access keys as well
+Do those keys need to be rotated too?

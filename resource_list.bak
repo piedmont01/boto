@@ -80,7 +80,7 @@ for reg in regions:
           print (f"this is the tag: {tag}")
       print (f"-----")
   
-    print (f"Account name: {account_name.get(profile_name)} (last 3-digits of account # {profile_name }) - running instance count: {len(running_instances)} and stopped instance count: {len(stopped_instances)}")
+    # print (f"Account name: {account_name.get(profile_name)} (last 3-digits of account # {profile_name }) - running instance count: {len(running_instances)} and stopped instance count: {len(stopped_instances)}")
     count_running += len(running_instances)
     count_stopped += len(stopped_instances)
   
@@ -89,5 +89,5 @@ for reg in regions:
   
   #for key, value in running_instances.items():
   #  print(f"server {key} in account {value}")
-  print (f"TOTAL EC2 running: {count_running}")
-  print (f"TOTAL EC2 stopped: {count_stopped}")
+  #  print (f"TOTAL EC2 running: {count_running}")
+  # print (f"TOTAL EC2 stopped: {count_stopped}")
