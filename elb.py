@@ -28,8 +28,10 @@ client = boto3.client('elbv2')
 
 tags = client.describe_tags( ResourceArns = [ 'arn:aws:elasticloadbalancing:us-east-1:858737304353:loadbalancer/app/test/49c9399c87f90ae5'])
 tag_descriptions=tags.get('TagDescriptions')
+elb_prefix = 'undefined'
 for row in range(len(tag_descriptions[0].get('Tags'))):
   for key, val in tag_descriptions[0].get('Tags')[row].items():
     if val == "Environment":
       elb_prefix = tag_descriptions[0]['Tags'][row]['Value']
-      print (elb_prefix)
+      break;
+print(elb_prefix)
