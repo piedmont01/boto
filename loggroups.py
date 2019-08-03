@@ -25,5 +25,7 @@ for log in loglist:
   print(log)
   response=client.describe_log_streams(logGroupName=log, orderBy='LastEventTime',limit=10)
   for each in response.items():
-    print(each[1])
+    for this in each[1]:
+      if this == 'logStreamName':
+        print(each)
   print("---")

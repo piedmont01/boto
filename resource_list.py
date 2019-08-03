@@ -58,7 +58,7 @@ region_names={	'us-east-1',
 		'us-west-2',
              }
 
-resource_list = ['ec2', 's3']
+resource_list = ['ec2', ]
 
 for region in region_names:
   for profile_name in profile_list:
