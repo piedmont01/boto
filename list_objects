@@ -1,0 +1,26 @@
+import boto3
+
+profile_name = input()
+session = boto3.Session(profile_name=profile_name)
+
+s3 = session.client('s3', region_name = 'us-east-1')
+
+unencrypt_list = []
+result = s3.list_buckets()
+for key, val in result.items():
+  if key == 'Buckets':
+    for i in val:
+      if i['Name'] != 'FAMC-Builds':
+        print(i['Name'])
+        try:
+          enc = s3.get_bucket_encryption(Bucket=i['Name'])
+        except:
+          print(f"{i['Name']} is not encrypted")
+          enc = -1
+        if enc != -1:
+          print(f"Encryption on {i['Name']} is {enc}")
+        obj = s3.list_objects_v2( Bucket=i['Name'])
+#        for ky, vl in obj.items():
+#          if ky == 'Contents':
+#            for list_item in vl:
+#              print(list_item)
