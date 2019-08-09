@@ -1,0 +1,29 @@
+def sortSecond(val): 
+    return val[1]  
+
+nelist = []
+masterlist=[]
+lowest = []
+if __name__ == '__main__':
+    for _ in range(int(input())):
+        name = input()
+        score = float(input())
+        
+        mylist = [ name, score ]
+        masterlist.append(mylist) 
+
+masterlist.sort(key = sortSecond)  
+print(masterlist) 
+  
+# sorts the array in descending according to 
+# second element 
+masterlist.sort(key = sortSecond, reverse = True) 
+
+lowest = masterlist[1][1]
+print(lowest)
+
+for record in masterlist:
+  if record[1] == lowest:
+    nelist.append(record) 
+
+print(nelist)

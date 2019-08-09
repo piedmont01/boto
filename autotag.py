@@ -181,47 +181,6 @@ def lambda_handler(event, context):
                     dyn_resp = dyn.tag_resource(ResourceArn=dyn_arn,Tags=allTags)
                     print (dyn_resp)
 
-        elif eventname == 'CreateLoadBalancer':
-            ELB_Arn = detail['responseElements']['loadBalancers'][0]['loadBalancerArn']
-            ELB_Name = detail['responseElements']['loadBalancers'][0]['loadBalancerName']
-
-            bucket_name = os.environ.get("logbucket")
-            print(f"Event name: {eventname}")
-    
-            client = boto3.client('elbv2')
-            print ('CreateLoadBalancer')
-            tags = client.describe_tags( ResourceArns = [ ELB_Arn ])
-            tag_descriptions=tags.get('TagDescriptions')
-            elb_prefix = ELB_Name
-            for row in range(len(tag_descriptions[0].get('Tags'))):
-                for key, val in tag_descriptions[0].get('Tags')[row].items():
-                    if val == "Environment":
-                        elb_prefix = tag_descriptions[0]['Tags'][row]['Value']
-                        break;
-    print(f"ELB prefix set to {elb_prefix}")
-
-    print(f"bucket name is {bucket_name} and ELB name is {ELB_Name} and ELB Arn is {ELB_Arn}")
-    print(f"Tags are {tags}")
-
-    response = client.modify_load_balancer_attributes(
-    LoadBalancerArn = ELB_Arn,
-        Attributes=[
-            {
-                'Key': 'access_logs.s3.enabled',
-                'Value': 'true'
-            },
-            {
-                'Key': 'access_logs.s3.bucket',
-                'Value': bucket_name
-            },
-            {
-                'Key': 'access_logs.s3.prefix',
-                'Value': elb_prefix
-            }
-        ]
-    )
-
-
         else:
             logger.warning('Not supported action')
 
@@ -236,4 +195,3 @@ def lambda_handler(event, context):
     except Exception as e:
         logger.error('Something went wrong: ' + str(e))
         return False
-
