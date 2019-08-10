@@ -1,0 +1,27 @@
+#big_str = input()
+#small_str = input()
+#small_len = len(small_str)
+#count = 0
+#
+#for i in range(len(big_str[:-small_len + 1])):
+#    if(big_str[i:i+small_len] == small_str):
+#        count += 1
+#
+#print(count)
+
+
+
+def count_substring(string, sub_string):
+  small_len = len(sub_string)
+  count = 0
+  for i in range(len(string[:-small_len+1])):
+    if (string[i:i+small_len] == sub_string):
+      count += 1
+  return count
+
+if __name__ == '__main__':
+    string = input().strip()
+    sub_string = input().strip()
+    
+    count = count_substring(string, sub_string)
+    print(count)

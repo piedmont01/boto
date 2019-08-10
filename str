@@ -1,0 +1,17 @@
+def count_substring(string, sub_string):
+#   lst = [ pos for pos, char in enumerate(string) if char == sub_string[0] ]
+#   count=0
+#   for i in lst:
+#     last_position = i+len(sub_string)
+#     if string[i:last_position]:
+#       count=count+1
+#   return count
+  for i in range(len(big_str[:-small_len + 1])):
+    if(big_str[i:i+small_len] == small_str):
+
+if __name__ == '__main__':
+    string = input().strip()
+    sub_string = input().strip()
+    
+    count = count_substring(string, sub_string)
+    print(count)
