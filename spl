@@ -1,0 +1,10 @@
+str = input()
+lst = str.split()
+
+
+abc = ''
+for each in lst:
+  abc = abc + each + '-'
+
+abc = abc[:-1]
+print(abc)

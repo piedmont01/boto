@@ -1,0 +1,16 @@
+#inp = input()
+#
+#intval = []
+#val = inp.split()
+#
+#for each in val:
+#  intval.append(int(each))
+#
+#t = hash(tuple(intval))
+#
+#
+#
+#print(t)
+
+T = tuple(int(x) for x in input().split())
+print(hash(T))
