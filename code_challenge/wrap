@@ -1,0 +1,14 @@
+import textwrap
+
+def wrap(string, max_width):
+    str = ''
+    x = textwrap.wrap(string, max_width)
+    for i in x:
+      str = str + i + '\n'
+    str = str[:-1]
+    return str
+
+if __name__ == '__main__':
+    string, max_width = input(), int(input())
+    result = wrap(string, max_width)
+    print(result)

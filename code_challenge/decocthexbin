@@ -1,0 +1,16 @@
+#n = input()
+#x=int(n)
+#
+#for i in range(x):
+#  print(f"{i} {oct(i)} {hex(i)} {bin(i)}")
+
+N = int(input())
+l = len(bin(N)) - 2
+
+for i in range(1, N + 1):
+    for c in "doXb":
+        print(f)
+        if f:
+            f += " "
+        f += "{:>" + str(l) + c + "}"
+    print(f.format(i, i, i, i))
