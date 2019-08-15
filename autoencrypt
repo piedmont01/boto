@@ -1,0 +1,32 @@
+import json
+import boto3
+import botocore
+
+def lambda_handler(event, context):
+    #print(event)
+    bucket = event['detail']['requestParameters']['bucketName']
+    print(bucket)
+    s3 = boto3.client('s3')
+    try:
+        response = s3.get_bucket_encryption(
+            Bucket=bucket)
+        print(response)
+    except botocore.exceptions.ClientError as error:
+        e=error
+        error.response['Error']['Code']
+        #print(error.response['Error']['Code'])
+        #print(error)
+        if e:
+            if e.response['Error']['Code'] =='ServerSideEncryptionConfigurationNotFoundError':
+                response = s3.put_bucket_encryption(
+                                Bucket=bucket,
+                        ServerSideEncryptionConfiguration={
+                        'Rules': [
+                                {
+                                'ApplyServerSideEncryptionByDefault': {
+                                'SSEAlgorithm': 'aws:kms',
+                                'KMSMasterKeyID':'f2748dc7-2894-4d6f-8ff7-44d9ba16b712'
+                                }},]})
+                print("encryption applied")
+            else:
+                print("some_unknown_error")
