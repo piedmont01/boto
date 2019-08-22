@@ -1,0 +1,32 @@
+import boto3
+  
+profile_list = [ '133', '202', '230', '272', '353', '439',] 
+for profile in profile_list:
+  print (profile)
+
+  client = boto3.Session(profile_name = profile)
+  iam = client.resource('iam')
+  account_password_policy = iam.AccountPasswordPolicy()
+  
+  
+  response = account_password_policy.update(
+      MinimumPasswordLength=14,
+      RequireSymbols=True,
+      RequireNumbers=True,
+      RequireUppercaseCharacters=True,
+      RequireLowercaseCharacters=True,
+      AllowUsersToChangePassword=True,
+      MaxPasswordAge=90,
+  )
+#
+#
+##1. Login to AWS console
+##2. Navigate to IAM service page
+##3. Select Account Settings
+##4. Under Password Policy section update the following fields
+##a. Set value of 'Minimum password length' greater than the one configured in Config Audit policy
+##b. Select 'Require at least one non-alphanumeric character' checkbox
+##c. Select 'Require at least one number' checkbox
+##d. Select 'Require at least one lowercase letter' checkbox
+##e. Select 'Require at least one uppercase letter' checkbox
+##f. Select 'Enable password expiration' checkbox

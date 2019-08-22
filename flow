@@ -1,0 +1,92 @@
+import boto3
+#{
+#    "Version": "2012-10-17",
+#    "Statement": [
+#        {
+#            "Action": [
+#                "logs:CreateLogGroup",
+#                "logs:CreateLogStream",
+#                "logs:PutLogEvents",
+#                "logs:DescribeLogGroups",
+#                "logs:DescribeLogStreams"
+#            ],
+#            "Effect": "Allow",
+#            "Resource": "*"
+#        }
+#    ]
+#}
+account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
+
+region_list = [
+
+    'ap-south-1',
+    'ap-northeast-2',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ap-northeast-1',
+    'ca-central-1',
+    'eu-central-1',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-west-3',
+    'eu-north-1',
+    'sa-east-1',
+]
+
+profile_list = [ '133', '202', '230', '272', '353', '439',]  
+
+count = 0
+count_fail = 0
+
+for profile in profile_list:
+  for region in region_list:
+    print(f"Region {region}")
+   
+    vpc_list = []
+
+    session = boto3.Session(profile_name=profile)
+    client = session.client('ec2', region_name = region)
+    
+    response = client.describe_flow_logs()
+    vpc = client.describe_vpcs()
+   
+    for vpc_id in vpc['Vpcs']:  
+      vpc_list.append(vpc_id.get('VpcId'))
+      
+
+    ec2 = session.resource('ec2', region_name = region)
+    ec2client = ec2.meta.client
+    x = vpc_list.pop()
+    print(f"this is {x}")
+    count += 1
+
+    vpc = ec2.Vpc(x)
+
+# DANGER - THIS CODE WILL DELETE VPC AND ALL RELATED RESOURCES
+#    for gw in vpc.internet_gateways.all():
+#        vpc.detach_internet_gateway(InternetGatewayId=gw.id)
+#        gw.delete()
+#
+#    for rt in vpc.route_tables.all():
+#        for rta in rt.associations:
+#            if not rta.main:
+#                rta.delete()
+#
+#    for subnet in vpc.subnets.all():
+#        for interface in subnet.network_interfaces.all():
+#            interface.delete()
+#        subnet.delete()
+#
+#    try:
+#      ec2client.delete_vpc(VpcId = x)
+#    except:
+#      print(f"Cannot delte {x} Profile {profile} or Account {account_list.get(profile)} and Region {region}")
+#      count_fail += 1
+      
+
+    print(f"Profile {profile} or Account {account_list.get(profile)} and Region {region} - List of VPC {vpc_list}")
+    for i in response.get('FlowLogs'):
+      if i.get('FlowLogStatus') == 'ACTIVE':
+        print(i['ResourceId'])
+
+print(f"Total {count} failure {count_fail}")
