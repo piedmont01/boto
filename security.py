@@ -21,6 +21,7 @@ for i in range(len(response['SecurityGroups'])):
   sec_group_id_list.add(str(response['SecurityGroups'][i]['GroupId']))
   i=i+1
 
+exit
 filter(None,sec_group_id_list)
 print(len(sec_group_id_list))
 
