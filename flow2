@@ -1,8 +1,6 @@
 import boto3
 import datetime
 
-
-
 profile_list = [ '133', '202', '230', '272', '353', '439',] 
 for profile in profile_list:
   session = boto3.Session(profile_name=profile)
@@ -11,8 +9,10 @@ for profile in profile_list:
   for i in client.describe_log_groups().get('logGroups'):
     for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
       try:
-        tm = datetime.datetime.fromtimestamp(p.get('lastIngestionTime')/1000)
+        x = datetime.datetime.fromtimestamp(p.get('lastIngestionTime')/1000)
+        df = x.today() - x
+        if df.days > 365:
+          print(f"aws logs delete-log-stream --log-group-name {i.get('logGroupName')}  --log-stream-name {p.get('logStreamName')} --profile {profile}")
+          # response = client.delete_log_stream( logGroupName=i.get('logGroupName'), logStreamName=p.get('logStreamName'))
       except:
-        print(f"Cannot process")
-
-      print(tm)
+        print(f"No log for {p.get('logStreamName')}")
