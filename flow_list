@@ -1,0 +1,11 @@
+import boto3
+account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
+
+profile_list = [ '133', '202', '230', '272', '353', '439',]
+
+for profile in profile_list:
+  session = boto3.Session(profile_name = profile)
+  ec2 = session.client('ec2', region_name = 'us-east-1')
+  response = ec2.describe_flow_logs()
+
+  print(f"{account_list.get('profile')} {response}")

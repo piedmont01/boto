@@ -1,0 +1,18 @@
+import boto3
+profile_list = [ '133', '202', '230', '272', '353', '439',]
+
+for profile in profile_list:
+  print(f"Profile {profile}")
+  session = boto3.Session(profile_name = profile)
+  ec2 = session.client('ec2', region_name = 'us-east-1')
+  sec_groups = ec2.describe_security_groups().get('SecurityGroups')
+
+  #  ec2.describe_security_groups().get('SecurityGroups')[0].get('IpPermissions')[0].get('IpRanges')
+
+  for p in range(len(sec_groups)):
+    x = len(sec_groups[p].get('IpPermissions'))
+    print(f"length: {x}")
+    for n in range(x):
+      result = sec_groups[p].get('IpPermissions')[n].get('IpRanges')
+      for ip in result:
+        print (ip)

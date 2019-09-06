@@ -6,7 +6,8 @@ client = boto3.client('logs')
 response=client.describe_log_groups()
 
 loglist=[]
-for i in range(len(response['logGroups'])):
+for i in response['logGroups']:
+  print(type(response['logGroups']))
   thing = response['logGroups'][i]
 
   for p in thing.items():
