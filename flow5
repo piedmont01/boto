@@ -1,0 +1,42 @@
+import boto3
+import datetime
+import ipaddress
+import re
+
+account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
+# profile_list = [ '133', '202', '230', '272', '353', '439',] 
+profile_list = [ '353' ]
+for profile in profile_list:
+  f = open("flowlog_profile.txt", "w")
+  count = 0
+  interfacelist = []
+  session = boto3.Session(profile_name=profile)
+  client = session.client('logs', region_name='us-east-1')
+  print(f"Profile: {profile}")
+  for i in client.describe_log_groups().get('logGroups'):
+    for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
+      response = client.get_log_events( logGroupName=i.get('logGroupName'), logStreamName=p.get('logStreamName'))
+      events =  response.get('events')
+      for event in events:
+        if event.get('message').startswith('2 '):
+          row = event.get('message').split()
+          if len(row) == 14:
+            f.write(event.get('message') + '\n')
+            ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = row
+            interfacelist.append(interface)
+            count += 1
+  f.close()
+  print(set(interfacelist))
+  print(len(set(interfacelist)))
+  print(count)
+
+  server_list=session.resource('ec2', region_name='us-east-1')
+  for server in server_list.instances.all():
+    print(len(server.network_interfaces))
+    tags = server.tags
+
+    if tags is not None:
+      for tag in tags:
+        if tag.get('Key') == 'Name':
+          print (f"this is the tag: {tag.get('Value')}")
+      print (f"-----")

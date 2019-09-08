@@ -1,0 +1,34 @@
+import boto3
+def main():
+  interfacedict = {}
+  session = boto3.Session(profile_name='353')
+  server_list=session.resource('ec2', region_name='us-east-1')
+  for server in server_list.instances.all():
+    interfacelist = []
+    for i in server.network_interfaces:
+      interfacelist.append(i.id)
+    tags = server.tags
+
+    if tags is not None:
+      for tag in tags:
+        if tag.get('Key') == 'Name':
+          print (f"this is the tag: {tag.get('Value')}")
+          x = { tag.get('Value') : interfacelist }
+          interfacedict.update(x)
+      print (f"-----")
+  print(interfacedict)
+
+  f = open("flowlog_profile.txt","r")
+  if f.mode == "r":
+    contents = f.read()
+    row = contents.split('\n')
+    for entry in row:
+      if entry:
+        try:
+          ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
+        except:
+          print(f"error parsing {entry}")
+        print(interface)
+
+if __name__=="__main__":
+  main()

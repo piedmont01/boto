@@ -8,11 +8,15 @@ for profile in profile_list:
   print(f"Profile: {profile}")
   for i in client.describe_log_groups().get('logGroups'):
     for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
+      if '2016' in p.get('logStreamName'):
+        print(f"aws logs delete-log-stream --log-group-name {i.get('logGroupName')}  --log-stream-name {p.get('logStreamName')} --profile {profile} --region us-east-1")
       try:
         x = datetime.datetime.fromtimestamp(p.get('lastIngestionTime')/1000)
         df = x.today() - x
         if df.days > 365:
-          print(f"aws logs delete-log-stream --log-group-name {i.get('logGroupName')}  --log-stream-name {p.get('logStreamName')} --profile {profile}")
+          # print(f"aws logs delete-log-stream --log-group-name {i.get('logGroupName')}  --log-stream-name {p.get('logStreamName')} --profile {profile}")
           # response = client.delete_log_stream( logGroupName=i.get('logGroupName'), logStreamName=p.get('logStreamName'))
+          print(f"{p.get('logStreamName')}")
       except:
         print(f"No log for {p.get('logStreamName')}")
+
