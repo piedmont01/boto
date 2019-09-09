@@ -14,11 +14,12 @@ def main():
         if tag.get('Key') == 'Name':
           print (f"this is the tag: {tag.get('Value')}")
           x = { tag.get('Value') : interfacelist }
+          print(x)
           interfacedict.update(x)
       print (f"-----")
-  print(interfacedict)
 
   f = open("flowlog_profile.txt","r")
+
   if f.mode == "r":
     contents = f.read()
     row = contents.split('\n')
@@ -28,7 +29,6 @@ def main():
           ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
         except:
           print(f"error parsing {entry}")
-        print(interface)
 
 if __name__=="__main__":
   main()

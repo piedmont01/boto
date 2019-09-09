@@ -1,0 +1,93 @@
+import boto3
+def main():
+
+  interfacedict = {}
+  session = boto3.Session(profile_name='353')
+  server_list=session.resource('ec2', region_name='us-east-1')
+
+  for server in server_list.instances.all():
+    interfacelist = []
+    for i in server.network_interfaces:
+      interfacelist.append(i.id)
+    tags = server.tags
+
+    if tags is not None:
+      for tag in tags:
+        if tag.get('Key') == 'Name':
+          x = { tag.get('Value') : interfacelist }
+          print(f"{x}")
+          interfacedict.update(x)
+      print (f"-----")
+
+  print(interfacedict.values())
+
+  masterlist = []
+  f = open("flowlog_profile.txt","r")
+
+  if f.mode == "r":
+    contents = f.read()
+    row = contents.split('\n')
+    for entry in row:
+      if entry:
+        try:
+          ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
+        except:
+          print(f"error parsing {entry}")
+       
+        if protocol == '17':
+          protocol = 'TCP'
+        elif protocol == '6':
+          protocol = 'UDP'
+       
+        if srcport == '53':
+          srcport = 'DNS'
+
+        if dstport == '53':
+          dstport = 'DNS'
+
+        if srcport == '123':
+          srcport = 'NTP'
+
+        if dstport == '123':
+          dstport = 'NTP'
+
+        if srcport == '80':
+          srcport = 'HTTP'
+
+        if dstport == '80':
+          dstport = 'HTTP'
+
+        if srcport == '443':
+          srcport = 'HTTPS'
+
+        if dstport == '443':
+          dstport = 'HTTPS'
+
+        if '2' in ver:
+          mydict = {}
+          mydict['ver'] = ver
+          mydict ['acct'] = acct
+          mydict ['interface'] = interface
+          mydict ['srcaddr'] = srcaddr
+          mydict ['dstaddr'] = dstaddr
+          mydict ['srcport'] = srcport
+          mydict ['dstport'] = dstport 
+          mydict ['protocol'] = protocol
+          mydict ['numpackets'] = numpackets
+          mydict ['numbytes'] = numbytes
+          mydict ['starttime'] = starttime
+          mydict ['endtime'] = endtime
+          mydict ['action'] = action
+          mydict ['logstatus'] = logstatus
+          for key, val in interfacedict.items():
+            for i in val:
+              if i == interface:
+                mydict ['hostname'] = key
+                masterlist.append(mydict)
+                break
+
+  print(f"Length: {len(masterlist)}")
+  for p in masterlist:
+    print(p)
+if __name__=="__main__":
+  main()
