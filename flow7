@@ -117,7 +117,7 @@ def main():
               unknowninterfacecount += 1
   for p in masterlist:
     print(p)
-  print (f"{len(masterlist)} should be 509302 or number of lines in flowlog_profile.txt and count: {count} fail: {fail} unknow: {unknowninterfacecount}")
+  print (f"{len(masterlist)} should be 245906 or number of lines in flowlog_profile.txt and count: {count} fail: {fail} unknow: {unknowninterfacecount}")
 
   for key, val in interfacedict.items():
     print(f"Key: {key} and Value: {val}")
