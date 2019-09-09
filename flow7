@@ -1,4 +1,5 @@
 import boto3
+import datetime
 def main():
 
   interfacedict = {}
@@ -33,11 +34,22 @@ def main():
           ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
         except:
           print(f"error parsing {entry}")
+
+        if starttime != '-':
+          starttime = int(starttime)
+          starttime = datetime.datetime.fromtimestamp(starttime/1000)
+
        
         if protocol == '17':
           protocol = 'TCP'
         elif protocol == '6':
           protocol = 'UDP'
+
+        if srcport == '22':
+          srcport = 'SSH'
+
+        if dstport == '22':
+          dstport = 'SSH'
        
         if srcport == '53':
           srcport = 'DNS'
@@ -51,11 +63,23 @@ def main():
         if dstport == '123':
           dstport = 'NTP'
 
+        if srcport == '135' or  srcport == '136' or  srcport == '137' or  srcport == '138' or  srcport == '139':
+          srcport = 'NetBIOS'
+
+        if dstport == '135' or  dstport == '136' or  dstport == '137' or  dstport == '138' or  dstport == '139':
+          dstport = 'NetBIOS'
+
         if srcport == '80':
           srcport = 'HTTP'
 
         if dstport == '80':
           dstport = 'HTTP'
+
+        if srcport == '389':
+          srcport = 'RDP'
+
+        if dstport == '389':
+          dstport = 'RDP'
 
         if srcport == '443':
           srcport = 'HTTPS'
