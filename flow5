@@ -14,6 +14,7 @@ for profile in profile_list:
   client = session.client('logs', region_name='us-east-1')
   print(f"Profile: {profile}")
   for i in client.describe_log_groups().get('logGroups'):
+    print(f"Loggroup: {i.keys()}")
     for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
       response = client.get_log_events( logGroupName=i.get('logGroupName'), logStreamName=p.get('logStreamName'))
       events =  response.get('events')

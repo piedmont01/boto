@@ -1,6 +1,10 @@
 import boto3
 import datetime
 def main():
+  
+  count = 0
+  fail = 0
+  unknowninterfacecount = 0
 
   interfacedict = {}
   session = boto3.Session(profile_name='353')
@@ -16,11 +20,7 @@ def main():
       for tag in tags:
         if tag.get('Key') == 'Name':
           x = { tag.get('Value') : interfacelist }
-          print(f"{x}")
           interfacedict.update(x)
-      print (f"-----")
-
-  print(interfacedict.values())
 
   masterlist = []
   f = open("flowlog_profile.txt","r")
@@ -32,12 +32,18 @@ def main():
       if entry:
         try:
           ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
+          count += 1
         except:
           print(f"error parsing {entry}")
+          fail += 1
 
         if starttime != '-':
           starttime = int(starttime)
-          starttime = datetime.datetime.fromtimestamp(starttime/1000)
+          starttime = datetime.datetime.fromtimestamp(starttime).strftime('%Y-%m-%d %H:%M:%S')
+
+        if endtime != '-':
+          endtime = int(endtime)
+          endtime = datetime.datetime.fromtimestamp(endtime).strftime('%Y-%m-%d %H:%M:%S')
 
        
         if protocol == '17':
@@ -87,31 +93,33 @@ def main():
         if dstport == '443':
           dstport = 'HTTPS'
 
-        if '2' in ver:
-          mydict = {}
-          mydict['ver'] = ver
-          mydict ['acct'] = acct
-          mydict ['interface'] = interface
-          mydict ['srcaddr'] = srcaddr
-          mydict ['dstaddr'] = dstaddr
-          mydict ['srcport'] = srcport
-          mydict ['dstport'] = dstport 
-          mydict ['protocol'] = protocol
-          mydict ['numpackets'] = numpackets
-          mydict ['numbytes'] = numbytes
-          mydict ['starttime'] = starttime
-          mydict ['endtime'] = endtime
-          mydict ['action'] = action
-          mydict ['logstatus'] = logstatus
-          for key, val in interfacedict.items():
-            for i in val:
-              if i == interface:
-                mydict ['hostname'] = key
-                masterlist.append(mydict)
-                break
-
-  print(f"Length: {len(masterlist)}")
+        mydict = {}
+        mydict['ver'] = ver
+        mydict ['acct'] = acct
+        mydict ['interface'] = interface
+        mydict ['srcaddr'] = srcaddr
+        mydict ['dstaddr'] = dstaddr
+        mydict ['srcport'] = srcport
+        mydict ['dstport'] = dstport 
+        mydict ['protocol'] = protocol
+        mydict ['numpackets'] = numpackets
+        mydict ['numbytes'] = numbytes
+        mydict ['starttime'] = starttime
+        mydict ['endtime'] = endtime
+        mydict ['action'] = action
+        mydict ['logstatus'] = logstatus
+        for key, val in interfacedict.items():
+          for i in val:
+            if i == interface:
+              mydict ['hostname'] = key
+              masterlist.append(mydict)
+          else:
+              unknowninterfacecount += 1
   for p in masterlist:
     print(p)
+  print (f"{len(masterlist)} should be 509302 or number of lines in flowlog_profile.txt and count: {count} fail: {fail} unknow: {unknowninterfacecount}")
+
+  for key, val in interfacedict.items():
+    print(f"Key: {key} and Value: {val}")
 if __name__=="__main__":
   main()
