@@ -1,0 +1,21 @@
+import boto3
+
+session = boto3.Session(profile_name='353')
+client = session.client('logs', region_name='us-east-1')
+f = open("flowlog_profile.txt", "w")
+
+response = client.describe_log_groups().get('logGroups')
+
+for row in response:
+  
+  logGroupName = row.get('logGroupName')
+  if logGroupName.startswith('cfg'):
+    if 'vpc' in logGroupName:
+      print(logGroupName)
+      logStream = client.describe_log_streams(logGroupName=logGroupName)
+      for row in logStream.get('logStreams'):
+        logStreamName = row.get('logStreamName')
+        response = client.get_log_events( logGroupName=logGroupName, logStreamName=logStreamName)
+        for row in response.get('events'):
+          f.write(row.get('message') + '\n')
+f.close()
