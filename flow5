@@ -14,8 +14,9 @@ for profile in profile_list:
   client = session.client('logs', region_name='us-east-1')
   print(f"Profile: {profile}")
   for i in client.describe_log_groups().get('logGroups'):
-    if 'vpc-5ef0b731' in i.get('logGroupName') or  'vpc-64c92c01' in i.get('logGroupName'):
-      for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
+    print(i.get('logGroupName'))
+    # if 'vpc-5ef0b731' in i.get('logGroupName') or  'vpc-64c92c01' in i.get('logGroupName'):
+    for p in client.describe_log_streams(logGroupName=i.get('logGroupName')).get('logStreams'):
         response = client.get_log_events( logGroupName=i.get('logGroupName'), logStreamName=p.get('logStreamName'))
         events =  response.get('events')
         for event in events:

@@ -1,7 +1,10 @@
 import boto3
 import datetime
 def main():
-  
+ 
+  internal = []
+  external = []
+  portsinuse = []  
   count = 0
   fail = 0
   unknowninterfacecount = 0
@@ -93,6 +96,8 @@ def main():
         if dstport == '443':
           dstport = 'HTTPS'
 
+        portsinuse.append(srcport)
+
         mydict = {}
         mydict['ver'] = ver
         mydict ['acct'] = acct
@@ -115,11 +120,18 @@ def main():
               masterlist.append(mydict)
           else:
               unknowninterfacecount += 1
-  for p in masterlist:
-    print(p)
-  print (f"{len(masterlist)} should be 245906 or number of lines in flowlog_profile.txt and count: {count} fail: {fail} unknow: {unknowninterfacecount}")
 
-  for key, val in interfacedict.items():
-    print(f"Key: {key} and Value: {val}")
+  masterlist_sorted = sorted(masterlist, key = lambda i: (i['hostname'], i['starttime']))
+  for p in masterlist_sorted:
+    if p.get('srcport').startswith('172'):
+      internal.append(p.get('hostname')) 
+    else:
+      external.append(p.get('hostname')) 
+
+  print (f"{len(masterlist)} should be 245906 or number of lines in flowlog_profile.txt and count: {count} fail: {fail} unknow: {unknowninterfacecount}")
+  print(len(set(portsinuse)))
+  print(set(internal))
+  print(set(external))
+
 if __name__=="__main__":
   main()
