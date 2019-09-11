@@ -156,7 +156,6 @@ if f.mode == "r":
                 for i in val:
                     if i in interface:
                         host = key
-                        break
             if host:
                 mydict['hostname'] = host
                 masterlist.append(mydict)
