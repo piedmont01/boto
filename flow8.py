@@ -112,10 +112,10 @@ if f.mode == "r":
             if dstport == '123':
                 dstport = 'NTP'
 
-            if srcport == '135' or srcport == '136' or srcport == '137' or srcport == '138' or srcport == '139':
+            if srcport in ('135', '136', '137', '138', '139'):
                 srcport = 'NetBIOS'
 
-            if dstport == '135' or dstport == '136' or dstport == '137' or dstport == '138' or dstport == '139':
+            if dstport in ('135', '136', '137', '138', '139'):
                 dstport = 'NetBIOS'
 
             if srcport == '80':
