@@ -1,7 +1,7 @@
 import boto3
+import datetime
 
 import os.path, time
-
 
 
 # create a Boto3 session
@@ -65,6 +65,7 @@ print(interfacedict)
 f = open(FILE,"r")
 
 if f.mode == "r":
+  unfound = []
   masterlist = []
   success = 0
   fail = 0
@@ -76,63 +77,63 @@ if f.mode == "r":
       ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
       success += 1
 
-        if starttime != '-':
-          starttime = int(starttime)
-          starttime = datetime.datetime.fromtimestamp(starttime).strftime('%Y-%m-%d %H:%M:%S')
+      if starttime != '-':
+        starttime = int(starttime)
+        starttime = datetime.datetime.fromtimestamp(starttime).strftime('%Y-%m-%d %H:%M:%S')
 
-        if endtime != '-':
-          endtime = int(endtime)
-          endtime = datetime.datetime.fromtimestamp(endtime).strftime('%Y-%m-%d %H:%M:%S')
-
-
-        if protocol == '17':
-          protocol = 'TCP'
-        elif protocol == '6':
-          protocol = 'UDP'
-
-        if srcport == '22':
-          srcport = 'SSH'
-
-        if dstport == '22':
-          dstport = 'SSH'
-
-        if srcport == '53':
-          srcport = 'DNS'
-
-        if dstport == '53':
-          dstport = 'DNS'
-
-        if srcport == '123':
-          srcport = 'NTP'
-
-        if dstport == '123':
-          dstport = 'NTP'
-
-        if srcport == '135' or  srcport == '136' or  srcport == '137' or  srcport == '138' or  srcport == '139':
-          srcport = 'NetBIOS'
-
-        if dstport == '135' or  dstport == '136' or  dstport == '137' or  dstport == '138' or  dstport == '139':
-          dstport = 'NetBIOS'
-
-        if srcport == '80':
-          srcport = 'HTTP'
-
-        if dstport == '80':
-          dstport = 'HTTP'
-
-        if srcport == '389':
-          srcport = 'RDP'
-
-        if dstport == '389':
-          dstport = 'RDP'
-
-        if srcport == '443':
-          srcport = 'HTTPS'
-
-        if dstport == '443':
-          dstport = 'HTTPS'
+      if endtime != '-':
+        endtime = int(endtime)
+        endtime = datetime.datetime.fromtimestamp(endtime).strftime('%Y-%m-%d %H:%M:%S')
 
 
+      if protocol == '17':
+        protocol = 'TCP'
+      elif protocol == '6':
+        protocol = 'UDP'
+
+      if srcport == '22':
+        srcport = 'SSH'
+
+      if dstport == '22':
+        dstport = 'SSH'
+
+      if srcport == '53':
+        srcport = 'DNS'
+
+      if dstport == '53':
+        dstport = 'DNS'
+
+      if srcport == '123':
+        srcport = 'NTP'
+
+      if dstport == '123':
+        dstport = 'NTP'
+
+      if srcport == '135' or  srcport == '136' or  srcport == '137' or  srcport == '138' or  srcport == '139':
+        srcport = 'NetBIOS'
+
+      if dstport == '135' or  dstport == '136' or  dstport == '137' or  dstport == '138' or  dstport == '139':
+        dstport = 'NetBIOS'
+
+      if srcport == '80':
+        srcport = 'HTTP'
+
+      if dstport == '80':
+        dstport = 'HTTP'
+
+      if srcport == '389':
+        srcport = 'RDP'
+
+      if dstport == '389':
+        dstport = 'RDP'
+
+      if srcport == '443':
+        srcport = 'HTTPS'
+
+      if dstport == '443':
+        dstport = 'HTTPS'
+
+      host = ''
       mydict = {}
       mydict['ver'] = ver
       mydict ['acct'] = acct
@@ -151,9 +152,13 @@ if f.mode == "r":
       for key, val in interfacedict.items():
         for i in val:
           if i in interface:
+            host = key
             break
-      mydict ['hostname'] = key
-      masterlist.append(mydict)
+      if host:
+        mydict ['hostname'] = host
+        masterlist.append(mydict)
+      else:
+        unfound.append(interface)
     else:
       print(success)
       fail += 1
@@ -165,3 +170,10 @@ print(len(masterlist))
 for i in masterlist:
   f.write(str(i.keys())+'\n')
 f.close()
+
+f = open("/tmp/cd", "w")
+for i in masterlist:
+  f.write(i.get('hostname') + '\n')
+f.close()
+
+print(set(unfound))
