@@ -181,6 +181,5 @@ for p in set(unfound):
 
 f = open("/tmp/final", "w")
 for row in masterlist_sorted:
-  f.write(str(row))
-
+  f.write(str(row) + '\n')
 f.close()
