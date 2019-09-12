@@ -63,7 +63,7 @@ for server in server_list.instances.all():
 print(interfacedict)
 
 f = open(FILE,"r")
-
+r = open("/tmp/results", "w")
 if f.mode == "r":
     unfound = []
     masterlist = []
@@ -133,7 +133,7 @@ if f.mode == "r":
         if dstport == '443':
           dstport = 'HTTPS'
 
-        host = ''
+        host = 'None'
         mydict = {}
         mydict['ver'] = ver
         mydict['acct'] = acct
@@ -151,20 +151,26 @@ if f.mode == "r":
         mydict['logstatus'] = logstatus
         for key, val in interfacedict.items():
           for i in val:
-            if i in interface:
+            if i == interface:
               host = key
+              r.write(host + interface + ' is found and is ' + i + '\n')
               break
-        if host:
-          mydict['hostname'] = host
-          masterlist.append(mydict)
-        else:
-          unfound.append(interface)
+            else:
+              r.write(host + interface + ' is NOT found and is ' + i + '\n')
+          if host:
+            mydict['hostname'] = host
+            masterlist.append(mydict)
+          else:
+            unfound.append(interface)
       else:
         print(success)
         fail += 1
 
-masterlist_sorted = sorted(masterlist, key = lambda i: (i['hostname'], i['starttime']))
 f.close()
+r.close()
+
+masterlist_sorted = sorted(masterlist, key = lambda i: (i['hostname'], i['starttime']))
+
 f = open("/tmp/ab", "w")
 print(len(masterlist))
 for i in masterlist:
