@@ -15,10 +15,10 @@ account_list = {
     '133': 'Ops',
     '353': 'Original'}
 profile_list = ['133', '202', '230', '272', '353', '439', ]
+profile_list = ['439', ]
 
 all_interfaces={}
 eventlist = []
-inter = []
 f = open("/tmp/logs", "w")
 for profile in profile_list:
 
@@ -38,7 +38,6 @@ for profile in profile_list:
                     interfacelist = []
                     for interface in server.network_interfaces:
                         interfacelist.append(interface.id)
-                        inter.append(interface.id)
                     x = {hostname: interfacelist}
                     interfacedict.update(x)
     y = { account_list.get(profile):interfacedict }
@@ -51,11 +50,8 @@ for profile in profile_list:
                 for p in response.get('logStreams'):
                     p.update( { 'account_name' : account_list.get(profile) } )
                     p.update( { 'loggroup_name' : row.get('logGroupName') } )
+                    p = (str(p) + '\n')
                     eventlist.append(p)
-
-for p in eventlist:
-  f.write(str(p) + '\n')
+f.write(str(eventlist))
 f.close()
 print(all_interfaces)
-for i in inter:
-  print(i)
