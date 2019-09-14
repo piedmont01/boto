@@ -1,0 +1,36 @@
+import boto3
+from botocore.config import Config
+
+config = Config(
+    retries = dict(
+        max_attempts = 10
+    )
+)
+
+account_list = {
+    '272': 'Imaging Prod',
+    '202': 'Dev',
+    '230': 'QA',
+    '439': 'Prod',
+    '133': 'Ops',
+    '353': 'Original'}
+profile_list = ['133', '202', '230', '272', '353', '439', ]
+
+eventlist = []
+for profile in profile_list:
+
+    session = boto3.Session(profile_name=profile)
+    client = session.client('logs', region_name = 'us-east-1', config=config)
+    
+    for row in client.describe_log_groups().get('logGroups'):
+        for i in row.get('logGroupName'):
+            if  'cfg' and 'vpc' in row.get('logGroupName'):
+                response = client.describe_log_streams(logGroupName = row.get('logGroupName'))
+                for p in response.get('logStreams'):
+                    p.update( { 'account_name' : account_list.get(profile) } )
+                    p.update( { 'loggroup_name' : row.get('logGroupName') } )
+                    eventlist.append(p)
+
+for i in eventlist:
+  print(i)
+print(len(eventlist))

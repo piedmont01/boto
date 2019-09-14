@@ -1,0 +1,60 @@
+import boto3
+
+
+account_list = {
+    '272': 'Imaging Prod',
+    '202': 'Dev',
+    '230': 'QA',
+    '439': 'Prod',
+    '133': 'Ops',
+    '353': 'Original'}
+profile_list = ['133', '202', '230', '272', '353', '439', ]
+
+
+
+
+all_interfaces = {}
+all_logstreams = []
+for profile_name in profile_list:
+    interfacedict = []
+
+    session = boto3.Session(profile_name=profile_name)
+    client = session.client('logs', region_name='us-east-1')
+    server_list = session.resource('ec2', region_name='us-east-1')
+
+    interfacedict = {}
+    for server in server_list.instances.all():
+        tags = server.tags
+
+        if tags is not None:
+            for tag in tags:
+                if tag.get('Key') == 'Name':
+                    hostname = tag.get('Value')
+                    interfacelist = []
+                    for interface in server.network_interfaces:
+                        interfacelist.append(interface.id)
+                    x = {hostname: interfacelist}
+                    interfacedict.update(x)
+    y = { account_list.get(profile_name):interfacedict }
+    all_interfaces.update(y)
+
+
+    response = client.describe_log_groups().get('logGroups')
+    for row in response:
+        logGroupName = row.get('logGroupName')
+
+        logStream = client.describe_log_streams( logGroupName=logGroupName)
+        for row in logStream.get('logStreams'):
+            if row:
+                response = client.get_log_events( logGroupName=logGroupName, logStreamName=logStreamName)
+            else:
+                print(f"No log stream for {logGroupName}")
+
+for key, val in all_interfaces.items():
+  if val:
+    print(key)
+    for ky, vl in val.items():
+      print(ky)
+      for y in vl:
+        if y in all_logstreams:
+          print(y)

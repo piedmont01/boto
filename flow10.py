@@ -21,7 +21,7 @@ def find_log_stream(profile_name, interface, hostname):
         # let's make sure these are the logs we're looking for
         if logGroupName.startswith('cfg'):
             if 'vpc' in logGroupName:
-                print(f"Log group name: {logGroupName}")
+                # print(f"Log group name: {logGroupName}")
                 # let's get all the log streams from the particular log group
                 logStream = client.describe_log_streams(
                     logGroupName=logGroupName)
@@ -65,11 +65,14 @@ for profile_name in profile_list:
                         interfacelist.append(interface.id)
                     x = {tag.get('Value'): interfacelist}
                     interfacedict.update(x)
-
+    all_logs = []
+    undef = []
+    response = None
     if interfacedict:
         print(f"Account: {account_list.get(profile_name)}")
         for key, val in interfacedict.items():
             print(f"Key: {key} and Value: {val}")
             for i in val:
                 resp = find_log_stream(profile_name, i, key)
-                print(resp)
+                if response is None:
+                  print(f"{key}")
