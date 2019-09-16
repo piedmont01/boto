@@ -1,0 +1,41 @@
+import boto3
+from botocore.config import Config
+
+config = Config(
+    retries = dict(
+        max_attempts = 10
+    )
+)
+
+account_list = {
+    '272': 'Imaging Prod',
+    '202': 'Dev',
+    '230': 'QA',
+    '439': 'Prod',
+    '133': 'Ops',
+    '353': 'Original'}
+profile_list = ['133', '202', '230', '272', '353', '439', ]
+
+def get_log_events(log_group):
+ 
+  session = boto3.Session(profile_name='133')
+  client = session.client('logs', region_name='us-east-1')
+
+  kwargs = {
+      'logGroupName': log_group,
+      'limit': 10000,
+  }
+  while True:
+      resp = client.filter_log_events(**kwargs)
+      yield from resp['events']
+      try:
+          kwargs['nextToken']=resp['nextToken']
+      except KeyError:
+          break
+  return resp['events']
+  
+if __name__ == '__main__':
+    f=open("133", "w")
+    for event in get_log_events('cfg-cloudwatch-vpc-acd9eec8'):
+        f.write(str(event)+'\n')
+    f.close()

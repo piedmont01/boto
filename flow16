@@ -1,0 +1,8 @@
+import boto3
+
+session = boto3.Session(profile_name='133')
+client = session.client('logs', region_name='us-east-1')
+
+for log in client.describe_log_groups():
+    logname = log.get('logGroup')
+    stream_batch = client.describe_log_streams(logGroupName=logname)
