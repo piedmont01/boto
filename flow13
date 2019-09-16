@@ -1,0 +1,41 @@
+import boto3
+import re
+from botocore.config import Config
+
+config = Config(
+    retries = dict(
+        max_attempts = 10
+    )
+)
+
+f = open("this.file", "w")
+loggedinterface = {}
+account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
+profile_list = [ '133', '202', '230', '272', '353', '439',] 
+
+for profile in profile_list:
+    
+    session = boto3.Session(profile_name = profile)
+    client = session.client('logs', region_name = 'us-east-1', config=config)
+    
+    for loggroup in client.describe_log_groups().get('logGroups'):
+        interfacelist = []
+        loggroupname = loggroup.get('logGroupName')
+        if 'cfg' and 'vpc' in loggroupname:
+            logstream = client.describe_log_streams( logGroupName=loggroupname)
+            for logstream in logstream.get('logStreams'):
+              stream = logstream.get('logStreamName')
+              response = client.get_log_events( logGroupName=loggroupname, logStreamName=stream )
+              for row in response.get('events'):
+                message = row.get('message')
+                if len(message.split()) == 14:
+                    ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = message.split()
+                    inter = re.sub('\-all', '', interface)
+                    interfacelist.append(inter)
+                    f.write (str(row) + '\n') 
+                else:
+                    print(f"{message} invalid format")
+
+    x = { account_list.get(profile) : set(interfacelist) }
+    loggedinterface.update(x)
+f.close()
