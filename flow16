@@ -3,6 +3,16 @@ import boto3
 session = boto3.Session(profile_name='133')
 client = session.client('logs', region_name='us-east-1')
 
-for log in client.describe_log_groups():
-    logname = log.get('logGroup')
-    stream_batch = client.describe_log_streams(logGroupName=logname)
+all_streams = []
+
+resp = client.describe_log_groups()
+
+for log in resp.get('logGroups'):
+    loggroupname = log.get('logGroupName')
+    stream_batch = client.describe_log_streams(logGroupName=loggroupname)
+    if 'cfg' and 'vpc' in loggroupname:
+        all_streams += stream_batch['logStreams']
+        stream_batch = client.describe_log_streams(logGroupName=loggroupname)
+        while 'nextToken' in stream_batch:
+            	stream_batch = client.describe_log_streams(logGroupName=loggroupname , nextToken=stream_batch['nextToken'])
+    print(f"{log} {len(all_streams)}")
