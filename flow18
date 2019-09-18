@@ -1,0 +1,35 @@
+import boto3
+
+session=boto3.Session(profile_name='353')
+client=session.client('logs', region_name='us-east-1')
+
+def get_log_group():
+  loggroups=[]
+  response=client.describe_log_groups()
+  for row in  response.get('logGroups'):
+    loggroups.append(row.get('logGroupName'))
+  return loggroups
+
+def get_log_stream(log):
+
+  kwargs = { 'logGroupName': log }
+  
+  response=client.describe_log_streams(**kwargs)
+  try: 
+    while response['nextToken']:
+      kwargs['nextToken'] = response['nextToken']
+      print(kwargs)
+      response=client.describe_log_streams(**kwargs)
+  except:
+      print('no token')
+  
+  for row in response:
+    print(row.get('logStream'))
+
+loggroup = get_log_group()
+
+for log in loggroup:
+  if 'cfg' and 'vpc' in log:
+    stream=get_log_stream(log)
+    print(stream)
+

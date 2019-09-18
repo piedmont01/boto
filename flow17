@@ -1,6 +1,27 @@
 import boto3
 import re
 
+
+def get_log_streams(profile, loggroup):
+
+    session = boto3.Session(profile_name=profile)
+    client = session.client('logs', region_name = 'us-east-1')
+
+    kwargs = {
+      'logGroupName': loggroup,
+    }
+
+
+    while True:
+        resp = client.describe_log_streams(**kwargs)
+        yield from resp.get('logStreams')
+        try:
+            kwargs['nextToken']=resp.get('nextToken')
+        except KeyError:
+            break
+    return resp.get('logStreams')
+
+
 account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
 
 flowloglist=[]
@@ -57,6 +78,7 @@ for key,val in all_interfaces.items():
     for i in vl:
       try:
         flowloglist.index(i)
+        i = i + '-all'
         print(f"{ky} {i}")
       except:
         print ("{i} not found")
