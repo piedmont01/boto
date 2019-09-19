@@ -1,9 +1,70 @@
 import boto3
+import re
+
+account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
 
 session = boto3.Session(profile_name='353')
 client = session.client('logs', region_name='us-east-1')
 
+
+# all interfaces attached to an EC2 
+all_server_interfaces = {}
+interfacedict = {}
+server_list = session.resource('ec2', region_name='us-east-1')
+for server in server_list.instances.all():
+    tags = server.tags
+    if tags is not None:
+        for tag in tags:
+            if tag.get('Key') == 'Name':
+                hostname = tag.get('Value')
+                interfacelist = []
+                for interface in server.network_interfaces:
+                    interfacelist.append(interface.id)
+        interfacedict.update({hostname: interfacelist})
+    all_server_interfaces.update({account_list.get('353'):interfacedict})
+
+interface = []
+for ky, vl in all_server_interfaces.get('Original').items():
+    for v in vl:
+        interface.append(v)
+print(len(interface))
+
+match = {}
 response=client.describe_log_groups()
 for log in response.get('logGroups'):
-  if 'cfg' and 'vpc' in log.get('logGroupName'):
-    print(log.get('logGroupName'))
+    all_streams = []
+    all_interfaces = {}
+    interface_logged = []
+    if 'cfg' and 'vpc' in log.get('logGroupName'):
+        group_name=log.get('logGroupName')
+        stream_batch = client.describe_log_streams(logGroupName=group_name)
+        all_streams += stream_batch['logStreams']
+        while 'nextToken' in stream_batch:
+            stream_batch = client.describe_log_streams(logGroupName=group_name,nextToken=stream_batch['nextToken'])
+            all_streams += stream_batch['logStreams']
+        x = {group_name:all_streams}
+        for row in all_streams:
+            interface_logged.append(re.sub('\-all', '', row.get('logStreamName')))
+        all_interfaces.update( {group_name:interface_logged} )
+        print(f"{group_name} {len(interface_logged)}")
+        f = set(interface) & set(interface_logged)
+        match.update( {group_name : f })
+        print(f"{group_name} {f}")
+        
+#for key, value in all_interfaces.items():
+#   print (f"Key: {key} Value: {value}")
+#   print(len(value))
+
+for ky, vl in match.items():
+  for v in vl:
+    print(v)
+
+print(match.keys())
+for key, value in all_server_interfaces.items():
+  for k, v in value.items():
+    for interface in v:
+      for theKey, theValue in match.items():
+        for v in theValue:
+          if v == interface:
+            print(k)
+            break
