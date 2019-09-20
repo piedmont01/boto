@@ -67,4 +67,7 @@ for key, value in all_server_interfaces.items():
         for v in theValue:
           if v == interface:
             print(k)
+            v=v+'-all'
+            response = client.get_log_events(  logGroupName=ky, logStreamName=v,)
+            print(response)
             break

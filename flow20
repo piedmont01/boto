@@ -1,0 +1,74 @@
+import boto3
+
+profile_list = [ '133', '202', '230', '272', '353', '439',] 
+for profile in profile_list:
+    # create a Boto 3 session
+    session = boto3.Session(profile_name=profile)
+    client = session.client('logs', region_name='us-east-1')
+    
+    #
+    # log groups
+    #
+    
+    # describe log groups
+    response = client.describe_log_groups()
+    
+    # traverse through all the log groups
+    while 'nextToken' in response:
+      response = describe_log_groups(nextToken=response.get('nextToken'))
+    
+    loggroup = []
+    # print out name of log groups
+    for row in response.get('logGroups'):
+      if 'cfg' and 'vpc' in row.get('logGroupName'):
+        loggroup.append(row.get('logGroupName'))
+    
+    #
+    # logstreams
+    #
+    all_logstreams = []
+    for log in loggroup:
+      loggroupstreams={}
+      interfaces = []
+      all_streams = []
+      stream_batch=client.describe_log_streams(logGroupName=log)
+      all_streams += stream_batch.get('logStreams')
+      while 'nextToken' in stream_batch:
+        stream_batch=client.describe_log_streams(logGroupName=log, nextToken=stream_batch.get('nextToken'))
+        all_streams += stream_batch.get('logStreams')
+      for row in all_streams:
+        interfaces.append(row.get('logStreamName'))
+    
+      loggroupstreams = ( { log : interfaces } )
+      all_logstreams.append(loggroupstreams) 
+    
+    client = session.client('ec2', region_name = 'us-east-1')
+    for row in client.describe_network_interfaces().get('NetworkInterfaces'):
+        print(row.get('NetworkInterfaceId'))
+    
+    for row in client.describe_tags().get('Tags'): 
+        if row.get('ResourceType') == 'instance' and row.get('Key') == 'Name':
+            print(f"{row.get('ResourceId')}\t{row.get('Value')}")
+    
+    count = 0
+    for row in client.describe_tags().get('Tags'): 
+        if row.get('ResourceType') == 'instance' and row.get('Key') == 'Name':
+            name = row.get('Value')
+            for row in client.describe_instances( Filters = [ { 'Name': 'instance-id', 'Values': [ row.get('ResourceId') ] } ] ).get('Reservations'):
+                for i in row.get('Instances'):
+                    for each in i.get('NetworkInterfaces'):
+                        networkid = each.get('NetworkInterfaceId')
+                        for row in all_logstreams:
+                            for key, value in row.items():
+                                for v in value:
+                                    if networkid+'-all' in v:
+                                        count += 1
+                                        print(f"{count} {name} with netowrk interface: {each.get('NetworkInterfaceId')} {key}")
+                                        break
+    
+    #for row in all_logstreams:
+    #    count=0
+    #    for key, value in row.items():
+    #        for val in value:
+    #            count += 1
+    #            print(f"{count} {key} {val}")
