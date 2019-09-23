@@ -1,5 +1,13 @@
 import boto3
 
+def get_events(log, logstream, server):
+  f = open(server+'.txt', 'w')
+  client = session.client('logs', region_name = 'us-east-1')
+  response = client.get_log_events( logGroupName=log, logStreamName=logstream)
+  for row in response.get('events'):
+    row.update( { 'hostname': server } )
+    f.write(str(row) + '\n') 
+
 profile_list = [ '133', '202', '230', '272', '353', '439',] 
 for profile in profile_list:
     # create a Boto 3 session
@@ -43,14 +51,14 @@ for profile in profile_list:
       all_logstreams.append(loggroupstreams) 
     
     client = session.client('ec2', region_name = 'us-east-1')
-    for row in client.describe_network_interfaces().get('NetworkInterfaces'):
-        print(row.get('NetworkInterfaceId'))
+#    for row in client.describe_network_interfaces().get('NetworkInterfaces'):
+#        print(row.get('NetworkInterfaceId'))
     
-    for row in client.describe_tags().get('Tags'): 
-        if row.get('ResourceType') == 'instance' and row.get('Key') == 'Name':
-            print(f"{row.get('ResourceId')}\t{row.get('Value')}")
-    
+#    for row in client.describe_tags().get('Tags'): 
+#        if row.get('ResourceType') == 'instance' and row.get('Key') == 'Name':
+#            print(f"{row.get('ResourceId')}\t{row.get('Value')}")
     count = 0
+    print(f"--------------------{profile}---------------")
     for row in client.describe_tags().get('Tags'): 
         if row.get('ResourceType') == 'instance' and row.get('Key') == 'Name':
             name = row.get('Value')
@@ -61,9 +69,11 @@ for profile in profile_list:
                         for row in all_logstreams:
                             for key, value in row.items():
                                 for v in value:
-                                    if networkid+'-all' in v:
+                                    if networkid+'-all' in v and 'cfg' in key:
                                         count += 1
-                                        print(f"{count} {name} with netowrk interface: {each.get('NetworkInterfaceId')} {key}")
+                                        # print(f"{count} {name} with netowrk interface: {each.get('NetworkInterfaceId')} {key}")
+                                        # 18 plnasrattic with netowrk interface: eni-0d2d9e5d flowlogs-prod-vpc-bd1226d9
+                                        get_events(key, each.get('NetworkInterfaceId')+'-all', name)
                                         break
     
     #for row in all_logstreams:
