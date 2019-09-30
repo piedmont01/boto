@@ -1,0 +1,8 @@
+172.20.192.200
+17221.192.200
+these 2 are only used for AWS DNS
+172.24.198.174
+172.24.231.239
+there is also 2 F5 VIP for uses not in AWS
+172.20.196.153
+172.21.210.153

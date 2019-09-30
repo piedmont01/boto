@@ -1,13 +1,22 @@
 import boto3
 
 def get_events(log, logstream, server):
-  f = open(server+'.txt', 'w')
+  f = open(server+'-'+logstream+'.txt', 'w')
   client = session.client('logs', region_name = 'us-east-1')
+  print(f"{log} {logstream} {server}")
+  all_events = []
   response = client.get_log_events( logGroupName=log, logStreamName=logstream)
-  for row in response.get('events'):
-    row.update( { 'hostname': server } )
+  all_events += response.get('events')
+#  while 'nextForwardToken' in response:
+#    response = client.get_log_events( logGroupName=log, logStreamName=logstream, nextToken=response.get('nextForwardToken'))
+#    all_events += response.get('events')
+#    print(f"{response.get('nextForwardToken')}")
+
+  for row in all_events:
+    row.update( { 'hostname':server } )
     f.write(str(row) + '\n') 
 
+  f.close()
 profile_list = [ '133', '202', '230', '272', '353', '439',] 
 for profile in profile_list:
     # create a Boto 3 session

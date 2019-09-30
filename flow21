@@ -1,0 +1,19 @@
+import boto3
+
+session = boto3.Session(profile_name='353')
+client = session.client('logs', region_name='us-east-1')
+
+# Log Groups
+all_logs = []
+
+current_logs  = client.describe_log_groups(logGroupNamePrefix='cfg')
+all_logs += current_logs.get('logGroups')
+while 'nextToken' in current_logs:
+  current_logs = client.describe_log_groups(logGroupNamePrefix='cfg',nextToken=current_logs.get('nextToken'))
+  all_logs += current_logs.get('logGroups')
+
+for logs in all_logs:
+  print(logs.get('logGroupName'))
+
+
+
