@@ -3,7 +3,7 @@ import boto3
 account_list = { '272': 'Imaging Prod', '202': 'Dev', '230': 'QA', '439': 'Prod', '133': 'Ops', '353': 'Original' }
 
 x = []
-profile_list = [ '272', '202', '230', '439', '133', '353' ]
+profile_list = [ '272', '202', '230', '439', '353' ]
 for profile_name in profile_list:
   session = boto3.Session(profile_name=profile_name)
   client = session.client('route53', region_name='us-east-1')

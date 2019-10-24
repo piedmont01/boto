@@ -1,6 +1,11 @@
 import boto3
+import datetime
+
 
 def get_events(log, logstream, server):
+  mydict = {}
+  success=0
+  failure=0
   f = open(server+'-'+logstream+'.txt', 'w')
   client = session.client('logs', region_name = 'us-east-1')
   print(f"{log} {logstream} {server}")
@@ -14,7 +19,87 @@ def get_events(log, logstream, server):
 
   for row in all_events:
     row.update( { 'hostname':server } )
-    f.write(str(row) + '\n') 
+    entry = row.get('message')
+    if len(entry.split()) == 14:
+      ver, acct, interface, srcaddr, dstaddr, srcport, dstport, protocol, numpackets, numbytes, starttime, endtime, action, logstatus = entry.split()
+      success += 1
+      if starttime != '-':
+          starttime = int(starttime)
+          starttime = datetime.datetime.fromtimestamp(starttime).strftime('%Y-%m-%d %H:%M:%S')
+
+      if endtime != '-':
+        endtime = int(endtime)
+        endtime = datetime.datetime.fromtimestamp(endtime).strftime('%Y-%m-%d %H:%M:%S')
+
+
+      if protocol == '17':
+        protocol = 'TCP'
+      elif protocol == '6':
+        protocol = 'UDP'
+
+      if srcport == '22':
+        srcport = 'SSH'
+
+      if dstport == '22':
+        dstport = 'SSH'
+
+      if srcport == '53':
+          srcport = 'DNS'
+
+      if dstport == '53':
+        dstport = 'DNS'
+
+      if srcport == '123':
+        srcport = 'NTP'
+
+      if dstport == '123':
+        dstport = 'NTP'
+
+      if srcport == '135' or  srcport == '136' or  srcport == '137' or  srcport == '138' or  srcport == '139':
+        srcport = 'NetBIOS'
+
+      if dstport == '135' or  dstport == '136' or  dstport == '137' or  dstport == '138' or  dstport == '139':
+        dstport = 'NetBIOS'
+
+      if srcport == '80':
+        srcport = 'HTTP'
+
+      if dstport == '80':
+        dstport = 'HTTP'
+
+      if srcport == '389':
+        srcport = 'RDP'
+
+      if dstport == '389':
+        dstport = 'RDP'
+
+      if srcport == '443':
+        srcport = 'HTTPS'
+
+      if dstport == '443':
+        dstport = 'HTTPS'
+
+      mydict.update({'ver':ver})
+      mydict.update({'acct':acct})
+      mydict.update({'interface':interface})
+      mydict.update({'srcaddr':srcaddr}) 
+      mydict.update({'dstaddr':dstaddr})
+      mydict.update({'srcport':srcport})
+      mydict.update({'dstport':dstport})
+      mydict.update({'protocol':protocol})
+      mydict.update({'numpackets':numpackets})
+      mydict.update({'numbytes': numbytes})
+      mydict.update({'starttime': starttime})
+      mydict.update({'endtime': endtime})
+      mydict.update({'action': action})
+      mydict.update({'logstatus': logstatus})
+      mydict.update({'hostname':server})
+
+    else:
+      failure +=1
+
+    f.write(str(mydict)+ '\n')
+  print(f"Success: {success} Failure: {failure}")
 
   f.close()
 profile_list = [ '133', '202', '230', '272', '353', '439',] 

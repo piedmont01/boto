@@ -1,0 +1,73 @@
+basically 2 steps:
+AMI is made from SQL_IMAGE_TEMPLATE here:
+[root@plnasops:~] # ssh plnasapm01 'cat /etc/cron.d/lab-crons'
+0,10,20,30,40,50 * * * * root /var/www/qadeploy/buildfiles.pl >/dev/null 2>&1
+30 4 * * * root /var/www/qadeploy/aws/mkimage sql nightly >/var/log/sql-nightly.log 2>&1
+15 3 * * * root /var/www/qadeploy/aws/mkimage wordpress nightly >/var/log/wordpress-nightly.log 2>&1
+#15 3 * * * root /var/www/qadeploy/aws/mkimage linux nightly >/dev/null 2>&1
+#15 3 * * * root /var/www/qadeploy/aws/mkimage docmagic nightly >/dev/null 2>&1
+the "sql nightly" cron ^
+then, haarp powers on box-provider-haarp-1 in AWS that runs an in-house Java Tomcat app that talks to Orc/HAARP and builds sql servers throughout the day from the fresh AMI
+ekendall 2:41 PM
+Of course ;) thank you that’s helpful - I’ve been locking down security groups for casb and want to make sure my changes don’t get overridden
+mcsmith 2:42 PM
+box-provider-haarp-1 sets 1-2 hour expire/delete times for the sql servers, and once that time hits, Orc/HAARP will delete the old ones
+HAARP powers off box-provider-haarp-1 before the end of the day, and no more sql servers are made
+this killbambi cron will delete any straglers that may have survived:
+[root@plnasops:~] # ssh plawshaarp 'cat /var/spool/cron/crontabs/root' | grep -vE '^#|^[[:space:]]*$'
+0 1 * * * /opt/scruffy/sqlback.sh
+0 7 * * 1-5 /usr/local/bin/control_famc_redshift.pl --cmd=start --stay-open=2019-10-01 >/var/log/control_famc_redshift_start.log 2>&1
+30 17 * * 1-5 /usr/local/bin/control_famc_redshift.pl --cmd=stop --stay-open=2019-10-01 >/var/log/control_famc_redshift_stop.log 2>&1
+*/5 * * * 1-5 /usr/bin/flock -n /tmp/sched.py.lock -c '/opt/scruffy/sched.py >>/var/log/sched.log 2>&1 ; /bin/rm -f /tmp/sched.py.lock'
+0 0 * * * /usr/local/bin/killbambi.py >> /var/log/killbambi.log 2>&1
+sched.py is the HAARP scheduler, checking AWS EC2 states and acting accordingly
+ekendall 2:44 PM
+I don’t believe killbambi has been running
+And volumes aren’t getting cleaned up
+mcsmith 2:46 PM
+yeah, the killbambi log hasn't updated since Feb 3rd, 2018, so there's probably an issue there
+volume cleanup for the AMI is handled in the mkimage script on plnasapm01
+meant to go back and see why the volume cleanup was failing
+check the /var/log/sql-nightly.log on plnasapm01 to see what the errors were from this morning's run
+could be that we're using an old PHP SDK for AWS
+(mkimage is an in-house PHP script using a now old PHP SDK for AWS)
+ekendall 2:59 PM
+all good info thank you
+:+1:
+1
+
+I have a script that goes through the flow logs and lets me knows the network traffic per server - of note... it appears that the DHCP options configured for the VPC allow NTP and DNS traffic - I don't have to set those on security group
+mcsmith 3:06 PM
+cool beans
+ekendall 3:06 PM
+for some reason infoblox is trying to connect over port 80 :thinking_face:
+mcsmith 3:08 PM
+?  there's infoblox in AWS.  is it talking to the on-prem infoblox, or perhaps an infoblox update server the vendor manages
+ekendall 3:10 PM
+{'timestamp': 1569678076000, 'message': '2 858737304353 eni-08f86e9cdb2d7d30a 172.20.219.206 172.22.45.43 80 41641 6 1 44 1569678076 1569678127 REJECT OK', 'ingestionTime': 1569678511129, 'hostname': 'network-testing-ubuntu'}
+{'timestamp': 1569678076000, 'message': '2 858737304353 eni-08f86e9cdb2d7d30a 172.20.219.206 172.22.45.43 80 2869 6 1 40 1569678076 1569678127 REJECT OK', 'ingestionTime': 1569678511129, 'hostname': 'network-testing-ubuntu'}
+172.20.219.206 that's pndalblox01
+pndalblox01 is that infoblox or a panda in a tree
+Status: pending
+Status: pending
+Status: pending
+Status: available
+Would delete ami-0cb57a9a Wordpress20190916-nightly us-east-1
+The image id '[ami-0cb57a9a]' does not existWould delete ami-0bfd4b25 LabSQL20190916-nightly us-east-1
+The image id '[ami-0bfd4b25]' does not existChecking for old AMI snapshots...
+Deleting old Snapshot ID: snap-0efcad0f73839ed5f (Created at 2019-09-16T08:15:20.000Z)
+no longer deleting snapshots hung somewhere
+ekendall 3:53 PM
+my guess is I deleted snapshots; not allowing the script to do it - my sense is it's out-of-wack - it doesn't have to logic built in - it's just deleting the last AMI and associated volume
+mcsmith 4:57 PM
+ah gotcha
+yeqh, pndalblox01 is an InfoBlox VM
+I want to say we have 2 in nas, 2 in dal, and 2 in aws
+pnXXXblox01 and 02
+ekendall 5:02 PM
+Thank you any idea why trying to connect in port 80
+mcsmith 5:11 PM
+it should probably be HTTPS, whatever the communication may be.  I do know that the SSL cert on them is self-signed or similar.  The port 80 communication may be an automatic fall-back or an admin-configured setting
+ekendall 5:12 PM
+:thumbsup:
+
