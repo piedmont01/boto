@@ -87,15 +87,15 @@ LOCATION '{1}';"""
 
 # Query to add a partition for 2018 to the CloudTrail table in Athena
 CREATE_PARTITON_QUERY_TEMPLATE = """
-ALTER TABLE {0} add partition (year="2018")
-location '{1}/CloudTrail/{2}/2018/'"""
+ALTER TABLE {0} add partition (year="2019")
+location '{1}/CloudTrail/{2}/2019/'"""
 
 # Query used to search for Lambda data event Invoke activities for the past 30 days
 LAST_RUN_QUERY_TEMPLATE = """
 select json_extract_scalar(requestparameters, '$.functionName') as function_name, Max (eventtime) as "Last Run"
 from {0}
 where eventname='Invoke'
-and year='2018'
+and year='2019'
 and from_iso8601_timestamp(eventtime) > current_timestamp - interval '1' month
 and json_extract_scalar(requestparameters, '$.functionName') in ({function_arns})
 group by json_extract_scalar(requestparameters, '$.functionName')"""
